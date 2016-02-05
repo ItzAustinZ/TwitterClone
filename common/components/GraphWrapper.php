@@ -29,11 +29,28 @@ class GraphWrapper
         $chart .= "element: '$this->name',";
         $chart .= "data: $this->data,";
         $chart .= "xkey: '$this->xkey',";
-        $chart .= "ykey: " . $this->getYkeys() . ",";
-        $chart .= "labels: " . $this->getYlabels() . ",";
+        $chart .= "ykeys: " . $this->getArrayAsString($this->ykeys) . ",";
+        $chart .= "labels: " . $this->getArrayAsString($this->yLabels) . ",";
         $chart .= "xLabels: '$this->xLabel',";
         $chart .= "});";
         $chart .= "</script>";
+        return $chart;
+    }
+    
+    public function getArrayAsString($myArray)
+    {
+        $yKeyString = "";
+        $yKeyString .= "[";
+        foreach($myArray as $key)
+        {
+            if($yKeyString != "[")
+            {
+                $yKeyString .= ",";
+            }
+            $yKeyString .= "'$key'";
+        }
+        $yKeyString .= "]";
+        return $yKeyString;
     }
     
     //Pass our mysql query.

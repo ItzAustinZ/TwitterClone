@@ -64,6 +64,11 @@ class SiteController extends Controller
             ],
         ];
     }
+    
+    public function actionStatistics()
+    {
+        return $this->render('statistics');
+    }
 
     /**
      * Displays homepage.
