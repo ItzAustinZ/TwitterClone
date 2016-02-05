@@ -2,7 +2,7 @@
 
 /* @var $this yii\web\View */
 
-$this->title = 'Site Statistics';
+$this->title = 'User Statistics';
 
 use common\models\User;
 use app\models\Tweet;
@@ -48,6 +48,25 @@ function getSignupsForIntervalAsArray($startMonth, $startYear, $endMonth, $endYe
     //Get our last result.
     $signupData[] = ['date' => "$currentYear-$currentMonth", 'signups' => getSignupsForMonth($currentMonth, $currentYear),];
     return $signupData;
+}
+function getTweetsForIntervalByUsernameAsArray($username, $startMonth, $startYear, $endMonth, $endYear)
+{
+    $tweetData = array();
+    $currentMonth = $startMonth;
+    $currentYear = $startYear;
+    while(($currentMonth != $endMonth) || ($currentYear != $endYear))
+    {
+        $tweetData[] = ['date' => "$currentYear-$currentMonth", 'numTweets' => getNumTweetsForMonthByUsername($username, $currentMonth, $currentYear),];
+        $currentMonth++;
+        if($currentMonth > 12)
+        {
+            $currentMonth = 1;
+            $currentYear++;
+        }
+    }
+    //Get our last result.
+    $tweetData[] = ['date' => "$currentYear-$currentMonth", 'numTweets' => getNumTweetsForMonthByUsername($username, $currentMonth, $currentYear),];
+    return $tweetData;
 }
 function getNumTweetsForMonthByUsername($username, $month, $year)
 {
@@ -142,7 +161,8 @@ function getTopUserTweetsForIntervalAsArray($startMonth, $startYear, $endMonth, 
 <div class="site-index">
 
     <div class="jumbotron">
-        <h1>Recent Signups</h1>
+        <h1><?php echo $user; ?></h1>
+        <p class="lead">Recent Activity</p>
         <?php
             //Get our current month and year.
             $endMonth = intval(date('m'));
@@ -151,30 +171,9 @@ function getTopUserTweetsForIntervalAsArray($startMonth, $startYear, $endMonth, 
             $startYear = $endYear - 1;
             
             //Draw our graph.
-            $data = getSignupsForIntervalAsArray($startMonth, $startYear, $endMonth, $endYear);
-            $graph = new GraphWrapper("signupsOverYear", $data, 'date', ['signups'], 'date', ['Signups']);
+            $data = getTweetsForIntervalByUsernameAsArray($user, $startMonth, $startYear, $endMonth, $endYear);
+            $graph = new GraphWrapper("tweetsOverYear", $data, 'date', ['numTweets'], 'date', ['Tweets']);
             echo $graph->getChart();
-        ?>
-    </div>
-    
-    <div class="jumbotron">
-        <h1>Most Active Users</h1>
-        <?php
-            //Get our current month and year.
-            $endMonth = intval(date('m'));
-            $endYear = intval(date('Y'));
-            $startMonth = $endMonth;
-            $startYear = $endYear - 1;
-            
-            //Draw our graph.
-            $data = getTopUsersForInterval($startMonth, $startYear, $endMonth, $endYear);
-            $donut = new GraphWrapper("topusersoveryear", $data, 'date');
-            echo $donut->getDonut(325);
-        ?>
-        <?php
-            $data = getTopUserTweetsForIntervalAsArray($startMonth, $startYear, $endMonth, $endYear);
-            $multiGraph = new GraphWrapper("topUserActivity", $data, 'date', getTopUsers($startMonth, $startYear, $endMonth, $endYear), 'date', getTopUsers($startMonth, $startYear, $endMonth, $endYear));
-            echo $multiGraph->getChart();
         ?>
     </div>
 </div>

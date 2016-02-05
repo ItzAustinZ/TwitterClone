@@ -49,4 +49,19 @@ class Tweet extends \yii\db\ActiveRecord
             'timestamp' => 'Timestamp',
         ];
     }
+    
+    public static function generateTestTweet($username, $id)
+    {
+        $model = new Tweet();
+        $model->key = $id;
+        $model->owner = $username;
+        $model->text = "message #$id";
+        $month = rand(1,12);
+        $day = rand(1,28);
+        $year = 2015;
+        $date = new \DateTime("$year-$month-$day");
+        $model->timestamp = $date->getTimestamp();
+        $model->save(false);
+
+    }
 }
