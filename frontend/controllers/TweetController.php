@@ -10,6 +10,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 use yii\filters\AccessControl;
+use common\models\User;
 
 /**
  * TweetController implements the CRUD actions for Tweet model.
@@ -81,6 +82,7 @@ class TweetController extends Controller
             $date = new \DateTime();
             $model->timestamp = $date->getTimestamp();
             if($model->save()) {
+                User::findByUsername($model->owner)->createTweet();
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         }
