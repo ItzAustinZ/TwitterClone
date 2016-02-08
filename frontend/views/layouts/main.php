@@ -48,6 +48,10 @@ AppAsset::register($this);
         $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
     } else {
         $menuItems[] = [
+            'label' => 'Profile',
+            'url' => ['/site/statistics-user', 'username' => Yii::$app->user->identity->username]
+        ];
+        $menuItems[] = [
             'label' => 'Logout (' . Yii::$app->user->identity->username . ')',
             'url' => ['/site/logout'],
             'linkOptions' => ['data-method' => 'post']
