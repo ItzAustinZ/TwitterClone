@@ -83,7 +83,7 @@ class TweetController extends Controller
         $model = new Tweet();
 
         if ($model->load(Yii::$app->request->post()))
-        {
+        {          
             $model->owner = Yii::$app->user->identity->username;
             $date = new \DateTime();
             $model->timestamp = $date->getTimestamp();

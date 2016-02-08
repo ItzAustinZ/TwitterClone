@@ -5,6 +5,8 @@ use yii\widgets\ActiveForm;
 
 use app\models\Tweet;
 
+use app\models\UploadForm;
+
 /* @var $this yii\web\View */
 /* @var $model app\models\Tweet */
 /* @var $form yii\widgets\ActiveForm */
