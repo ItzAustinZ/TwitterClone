@@ -66,6 +66,12 @@ class TweetController extends Controller
             'model' => $this->findModel($id),
         ]);
     }
+    
+    public function actionViewAll()
+    {
+        $tweets = Tweet::find()->orderBy('timestamp DESC')->all();
+        return $this->render('gridview', ['tweets' => $tweets,]);
+    }
 
     /**
      * Creates a new Tweet model.
