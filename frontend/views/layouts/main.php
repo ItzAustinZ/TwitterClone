@@ -10,6 +10,8 @@ use yii\widgets\Breadcrumbs;
 use frontend\assets\AppAsset;
 use common\widgets\Alert;
 
+use common\models\User;
+
 AppAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
@@ -39,14 +41,19 @@ AppAsset::register($this);
         ],
     ]);
     $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
-        ['label' => 'About', 'url' => ['/site/about']],
-        ['label' => 'Contact', 'url' => ['/site/contact']],
+        ['label' => 'Home', 'url' => ['/tweet/view-all']],
     ];
+    //Load Guest and User Controls
     if (Yii::$app->user->isGuest) {
         $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
         $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
     } else {
+        //Load Admin Controls
+        if(Yii::$app->user->identity->role >= User::ROLE_ADMIN)
+        {
+            $menuItems[] = ['label' => 'Statistics', 'url' => ['/site/statistics']];
+        }
+        //Load User Controls
         $menuItems[] = [
             'label' => 'Profile',
             'url' => ['/site/statistics-user', 'username' => Yii::$app->user->identity->username]

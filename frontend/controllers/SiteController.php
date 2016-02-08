@@ -16,6 +16,8 @@ use yii\filters\AccessControl;
 use common\models\User;
 use app\models\Tweet;
 
+use common\components\AccessRule;
+
 /**
  * Site controller
  */
@@ -29,7 +31,10 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup'],
+                'ruleConfig' => [
+                    'class' => AccessRule::className(),
+                ],
+                'only' => ['logout', 'signup', 'statistics'],
                 'rules' => [
                     [
                         'actions' => ['signup'],
@@ -40,6 +45,14 @@ class SiteController extends Controller
                         'actions' => ['logout'],
                         'allow' => true,
                         'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['statistics'],
+                        'allow' => true,
+                        'roles' => [
+                            User::ROLE_ADMIN,
+                            User::ROLE_SUPER,
+                        ],
                     ],
                 ],
             ],
@@ -94,6 +107,10 @@ class SiteController extends Controller
     
     public function actionStatisticsUser($username)
     {
+        if(Yii::$app->user->isGuest || (($username != Yii::$app->user->identity->username) && (Yii::$app->user->identity->role < User::ROLE_ADMIN)))
+        {
+            throw new \yii\web\HttpException(403, 'User statistics are private.');
+        }
         return $this->render('statistics-user', ['user' => $username]);
     }
 
