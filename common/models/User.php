@@ -198,4 +198,19 @@ class User extends ActiveRecord implements IdentityInterface
         $this->numTweets++;
         $this->save(false);
     }
+    
+    public static function generateTestUser($username)
+    {
+        $user = new User();
+        $user->username = $username;
+        $user->email = $username . "@outlook.com";
+        $user->setPassword($username);
+        $user->generateAuthKey();
+        $month = rand(1,12);
+        $day = rand(1,28);
+        $year = 2015;
+        $date = new \DateTime("$year-$month-$day");
+        $user->timestamp = $date->getTimestamp();
+        $user->save(false);
+    }
 }

@@ -13,6 +13,9 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 
+use common\models\User;
+use app\models\Tweet;
+
 /**
  * Site controller
  */
@@ -63,6 +66,35 @@ class SiteController extends Controller
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
         ];
+    }
+    
+    public function actionStatistics()
+    {
+        return $this->render('statistics');
+    }
+    
+    public function actionGenerateTestData($numUsers, $maxNumTweets)
+    {
+        $i = 0;
+        $identifier = rand(0,1000);
+        while($i < $numUsers)
+        {
+            User::generateTestUser("User" . $i . $identifier);
+            $numTweets = rand(2, $maxNumTweets);
+            $k = 0;
+            while($k < $numTweets)
+            {
+                Tweet::generateTestTweet("User" . $i . $identifier, $k);
+                $k++;
+            }
+            $i++;
+        }
+        return $this->render('index');
+    }
+    
+    public function actionStatisticsUser($username)
+    {
+        return $this->render('statistics-user', ['user' => $username]);
     }
 
     /**
