@@ -112,6 +112,7 @@ class TweetController extends Controller
                     $myConnection->save();
                 }
                 User::findByUsername($model->owner)->createTweet();
+                return $this->redirect(Yii::$app->request->referrer);
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         }
