@@ -2,6 +2,7 @@
 /* 
  * Pass a tweet to $model.
  */
+use app\models\MediaConnections;
 ?>
 
 <div class="col-md-6 well">
@@ -16,6 +17,12 @@
         echo "<div class='col-md-9 text-center'>";
             echo "<div class='panel panel-default'>";
                 echo "<div class='panel-body'>$model->text</div>";
+                //Get images.
+                $mediaConnections = MediaConnections::find()->where(['tweet' => $model->id,])->all();
+                foreach($mediaConnections as $image)
+                {
+                    echo "<img class='img-thumbnail' src='$image->url'/>";
+                }
             echo "</div>";
         echo "</div>";
     echo "</div>";
