@@ -11,6 +11,13 @@ use yii\filters\VerbFilter;
 
 use yii\filters\AccessControl;
 use common\models\User;
+use app\models\MediaConnections;
+
+use yii\web\UploadedFile;
+
+require_once '../../third/Cloudinary.php';
+require_once '../../third/Uploader.php';
+require_once '../../third/Api.php';
 
 /**
  * TweetController implements the CRUD actions for Tweet model.
@@ -88,6 +95,22 @@ class TweetController extends Controller
             $date = new \DateTime();
             $model->timestamp = $date->getTimestamp();
             if($model->save()) {
+                //Upload images if need be.
+                $image = UploadedFile::getInstances($model, 'image');
+                \Cloudinary::config(array( 
+                    "cloud_name" => "dxqmggd5a", 
+                    "api_key" => "314154111631994", 
+                    "api_secret" => "KE-AgYwX8ecm8N2omI22RDVmFv4" 
+                ));
+                foreach($image as $file)
+                {   
+                    $uploadResult = \Cloudinary\Uploader::upload($file->tempName);
+                    $myConnection = new MediaConnections();
+                    $myConnection->tweet = $model->id;
+                    $myConnection->url = $uploadResult['url'];
+                    $myConnection->timestamp = $model->timestamp;
+                    $myConnection->save();
+                }
                 User::findByUsername($model->owner)->createTweet();
                 return $this->redirect(['view', 'id' => $model->id]);
             }

@@ -14,7 +14,7 @@ use app\models\UploadForm;
 
 <div class="col-md-6 well">
 <?php
-    $form = ActiveForm::begin(['action' => '../tweet/create']);
+    $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data'], 'action' => '../tweet/create']);
     echo "<div class='row-fluid'>"; 
         echo "<div class='col-md-3'>";
             echo Yii::$app->user->identity->username;
@@ -35,6 +35,7 @@ use app\models\UploadForm;
     echo "<div class='row-fluid'>";
         echo "<div class='col-md-12'>";
             echo "OPTIONS GO HERE";
+            echo $form->field($model, 'image[]')->fileInput(['multiple' => true, 'accept' => 'image/*']);
             echo Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']);
         echo "</div>";
     echo "</div>";

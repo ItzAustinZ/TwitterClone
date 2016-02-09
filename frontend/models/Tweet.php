@@ -15,6 +15,7 @@ use Yii;
  */
 class Tweet extends \yii\db\ActiveRecord
 {
+    public $image;
     /**
      * @inheritdoc
      */
@@ -32,8 +33,8 @@ class Tweet extends \yii\db\ActiveRecord
             [['owner', 'timestamp'], 'required'],
             [['text'], 'string'],
             [['timestamp'], 'integer'],
-            [['owner', 'key'], 'string', 'max' => 255]
-        ];
+            [['image'], 'file', 'extensions' => 'jpg, gif, png', 'maxFiles' => 10],
+            ];
     }
 
     /**
