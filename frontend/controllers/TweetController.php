@@ -79,6 +79,12 @@ class TweetController extends Controller
         $tweets = Tweet::find()->orderBy('timestamp DESC')->all();
         return $this->render('gridview', ['tweets' => $tweets,]);
     }
+    
+    public function actionViewUser($username)
+    {
+        $tweets = Tweet::find()->where(['owner' => $username,])->orderBy('timestamp DESC')->all();
+        return $this->render('gridview', ['tweets' => $tweets,]);
+    }
 
     /**
      * Creates a new Tweet model.
