@@ -3,16 +3,17 @@
  * Pass a tweet to $model.
  */
 use app\models\MediaConnections;
+use yii\helpers\Html;
 ?>
 
 <div class="col-md-6 well">
 <?php
     echo "<div class='row-fluid'>"; 
         echo "<div class='col-md-3'>";
-            echo $model->owner;
+            echo Html::a($model->owner, ["/tweet/view-user", 'username' => $model->owner]);
             echo "<br/>";
             $hash = hash("md5", $model->owner);;
-            echo "<img src='http://www.gravatar.com/avatar/$hash?d=identicon' />";
+            echo Html::a("<img src='http://www.gravatar.com/avatar/$hash?d=identicon' />", ["/tweet/view-user", 'username' => $model->owner]);
         echo "</div>";
         echo "<div class='col-md-9 text-center'>";
             echo "<div class='panel panel-default'>";
