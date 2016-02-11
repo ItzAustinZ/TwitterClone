@@ -15,6 +15,8 @@ use app\models\MediaConnections;
 
 use yii\web\UploadedFile;
 
+use common\components\AccessRule;
+
 require_once '../../third/Cloudinary.php';
 require_once '../../third/Uploader.php';
 require_once '../../third/Api.php';
@@ -29,12 +31,33 @@ class TweetController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['create', 'update', 'delete'],
+                'ruleConfig' => [
+                    'class' => AccessRule::className(),
+                ],
+                'only' => ['create', 'update', 'delete', 'index'],
                 'rules' => [
                     [
+                        'actions' => ['create'],
                         'allow' => true,
-                        'actions' => ['create', 'update', 'delete'],
                         'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['update'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['index'],
+                        'allow' => true,
+                        'roles' => [
+                            User::ROLE_ADMIN,
+                            User::ROLE_SUPER,
+                        ],
                     ],
                 ],
             ],
@@ -137,6 +160,11 @@ class TweetController extends Controller
     {
         $model = $this->findModel($id);
 
+        if(Yii::$app->user->isGuest || ((Yii::$app->user->identity->username != $model->owner) && (Yii::$app->user->identity->role < User::ROLE_ADMIN)))
+        {
+            throw new \yii\web\HttpException(403, 'Cannot modify others messages.');
+        }
+        
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
@@ -154,7 +182,13 @@ class TweetController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        if(Yii::$app->user->isGuest || ((Yii::$app->user->identity->username != $model->owner) && (Yii::$app->user->identity->role < User::ROLE_ADMIN)))
+        {
+            throw new \yii\web\HttpException(403, 'Cannot delete others messages.');
+        }
+        
+        $model->delete();
 
         return $this->redirect(['index']);
     }
