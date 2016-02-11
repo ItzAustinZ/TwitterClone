@@ -4,6 +4,8 @@ namespace app\models;
 
 use Yii;
 
+use common\models\User;
+
 /**
  * This is the model class for table "tweet".
  *
@@ -31,7 +33,7 @@ class Tweet extends \yii\db\ActiveRecord
     {
         return [
             [['owner', 'timestamp'], 'required'],
-            [['text'], 'string'],
+            [['text', 'key'], 'string'],
             [['timestamp'], 'integer'],
             [['image'], 'file', 'extensions' => 'jpg, gif, png', 'maxFiles' => 10],
             ];
@@ -64,5 +66,21 @@ class Tweet extends \yii\db\ActiveRecord
         $model->timestamp = $date->getTimestamp();
         $model->save(false);
 
+    }
+    
+    //Returns text appropriate for the user.
+    public function getText()
+    {
+        $userIsOwner = Yii::$app->user->identity->username == $this->owner;
+        $user = User::find()->where(['id' => Yii::$app->user->identity->id])->one();
+        $userHasKey = $user->hasKey($this->key);
+        if($userIsOwner || $userHasKey)
+        {
+            return $this->text;
+        }
+        else
+        {
+            return "Doesn't have key - IMPLEMENT ENCRYPTION";
+        }
     }
 }

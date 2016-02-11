@@ -6,6 +6,9 @@ $this->title = 'User Statistics';
 
 use common\models\User;
 use app\models\Tweet;
+use app\models\KeyConnections;
+use yii\data\ActiveDataProvider;
+use yii\grid\GridView;
 
 function getStartOfMonth($month, $year)
 {
@@ -174,6 +177,31 @@ function getTopUserTweetsForIntervalAsArray($startMonth, $startYear, $endMonth, 
             $data = getTweetsForIntervalByUsernameAsArray($user, $startMonth, $startYear, $endMonth, $endYear);
             $graph = new GraphWrapper("tweetsOverYear", $data, 'date', ['numTweets'], 'date', ['Tweets']);
             echo $graph->getChart();
+            
+            echo "<br/>";
+            echo "<p class='lead'>Keys</p>";
+            echo "<br/>";
+            
+            $model = new KeyConnections();
+            echo $this->render('/key-connections/_form', ['model' => $model,]);
+            
+            $userId = User::find()->where(['username' => $user])->one()->id;
+            
+            //Draw our keys.
+            $dataProvider = new ActiveDataProvider([
+                'query' => KeyConnections::find()->where(['owner' => $userId,]),
+            ]);
+            echo GridView::widget([
+            'dataProvider' => $dataProvider,
+            'columns' => [
+                ['class' => 'yii\grid\SerialColumn'],
+                    'id',
+                    'owner',
+                    'text',
+                    'timestamp:datetime',
+                    ['class' => 'yii\grid\ActionColumn', 'controller' => 'key-connections'],
+                ],
+            ]);
         ?>
     </div>
 </div>

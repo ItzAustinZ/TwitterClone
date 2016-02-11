@@ -3,7 +3,7 @@
 namespace frontend\controllers;
 
 use Yii;
-use app\models\Tweet;
+use app\models\KeyConnections;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -11,20 +11,13 @@ use yii\filters\VerbFilter;
 
 use yii\filters\AccessControl;
 use common\models\User;
-use app\models\MediaConnections;
-
-use yii\web\UploadedFile;
 
 use common\components\AccessRule;
 
-require_once '../../third/Cloudinary.php';
-require_once '../../third/Uploader.php';
-require_once '../../third/Api.php';
-
 /**
- * TweetController implements the CRUD actions for Tweet model.
+ * KeyConnectionsController implements the CRUD actions for KeyConnections model.
  */
-class TweetController extends Controller
+class KeyConnectionsController extends Controller
 {
     public function behaviors()
     {
@@ -71,13 +64,13 @@ class TweetController extends Controller
     }
 
     /**
-     * Lists all Tweet models.
+     * Lists all KeyConnections models.
      * @return mixed
      */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Tweet::find(),
+            'query' => KeyConnections::find(),
         ]);
 
         return $this->render('index', [
@@ -86,7 +79,7 @@ class TweetController extends Controller
     }
 
     /**
-     * Displays a single Tweet model.
+     * Displays a single KeyConnections model.
      * @param integer $id
      * @return mixed
      */
@@ -96,51 +89,26 @@ class TweetController extends Controller
             'model' => $this->findModel($id),
         ]);
     }
-    
-    public function actionViewAll()
-    {
-        $tweets = Tweet::find()->orderBy('timestamp DESC')->all();
-        return $this->render('gridview', ['tweets' => $tweets,]);
-    }
-    
-    public function actionViewUser($username)
-    {
-        $tweets = Tweet::find()->where(['owner' => $username,])->orderBy('timestamp DESC')->all();
-        return $this->render('gridview', ['tweets' => $tweets,]);
-    }
 
     /**
-     * Creates a new Tweet model.
+     * Creates a new KeyConnections model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Tweet();
+        $model = new KeyConnections();
 
-        if ($model->load(Yii::$app->request->post()))
-        {          
-            $model->owner = Yii::$app->user->identity->username;
+        if ($model->load(Yii::$app->request->post())){
+            $model->owner = Yii::$app->user->identity->id;
+            //Check if key already exists. If so, just redirect.
+            if(KeyConnections::find()->where(['text' => $model->text, 'owner' => $model->owner,])->exists())
+            {
+                return $this->redirect(Yii::$app->request->referrer);
+            }
             $date = new \DateTime();
             $model->timestamp = $date->getTimestamp();
-            if($model->save()) {
-                //Upload images if need be.
-                $image = UploadedFile::getInstances($model, 'image');
-                \Cloudinary::config(array( 
-                    "cloud_name" => "dxqmggd5a", 
-                    "api_key" => "314154111631994", 
-                    "api_secret" => "KE-AgYwX8ecm8N2omI22RDVmFv4" 
-                ));
-                foreach($image as $file)
-                {   
-                    $uploadResult = \Cloudinary\Uploader::upload($file->tempName);
-                    $myConnection = new MediaConnections();
-                    $myConnection->tweet = $model->id;
-                    $myConnection->url = $uploadResult['url'];
-                    $myConnection->timestamp = $model->timestamp;
-                    $myConnection->save();
-                }
-                User::findByUsername($model->owner)->createTweet();
+            if($model->save(false)) {
                 return $this->redirect(Yii::$app->request->referrer);
             }
         }
@@ -150,7 +118,7 @@ class TweetController extends Controller
     }
 
     /**
-     * Updates an existing Tweet model.
+     * Updates an existing KeyConnections model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -159,13 +127,13 @@ class TweetController extends Controller
     {
         $model = $this->findModel($id);
 
-        if(Yii::$app->user->isGuest || ((Yii::$app->user->identity->username != $model->owner) && (Yii::$app->user->identity->role < User::ROLE_ADMIN)))
+        if(Yii::$app->user->isGuest || ((Yii::$app->user->identity->id != $model->owner) && (Yii::$app->user->identity->role < User::ROLE_ADMIN)))
         {
-            throw new \yii\web\HttpException(403, 'Cannot modify others messages.');
+            throw new \yii\web\HttpException(403, 'Cannot modify others keys.');
         }
         
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(Yii::$app->request->referrer);
         } else {
             return $this->render('update', [
                 'model' => $model,
@@ -174,7 +142,7 @@ class TweetController extends Controller
     }
 
     /**
-     * Deletes an existing Tweet model.
+     * Deletes an existing KeyConnections model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -182,26 +150,25 @@ class TweetController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        if(Yii::$app->user->isGuest || ((Yii::$app->user->identity->username != $model->owner) && (Yii::$app->user->identity->role < User::ROLE_ADMIN)))
+        if(Yii::$app->user->isGuest || ((Yii::$app->user->identity->id != $model->owner) && (Yii::$app->user->identity->role < User::ROLE_ADMIN)))
         {
-            throw new \yii\web\HttpException(403, 'Cannot delete others messages.');
+            throw new \yii\web\HttpException(403, 'Cannot delete others keys.');
         }
-        
         $model->delete();
 
-        return $this->redirect(['index']);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
-     * Finds the Tweet model based on its primary key value.
+     * Finds the KeyConnections model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Tweet the loaded model
+     * @return KeyConnections the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Tweet::findOne($id)) !== null) {
+        if (($model = KeyConnections::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

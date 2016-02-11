@@ -7,6 +7,8 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
+use app\models\KeyConnections;
+
 /**
  * User model
  *
@@ -212,5 +214,10 @@ class User extends ActiveRecord implements IdentityInterface
         $date = new \DateTime("$year-$month-$day");
         $user->timestamp = $date->getTimestamp();
         $user->save(false);
+    }
+    
+    public function hasKey($key)
+    {
+        return KeyConnections::find()->where(['owner' => $this->id, 'text' => $key])->exists();
     }
 }

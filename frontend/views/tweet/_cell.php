@@ -17,7 +17,7 @@ use yii\helpers\Html;
         echo "</div>";
         echo "<div class='col-md-9 text-center'>";
             echo "<div class='panel panel-default'>";
-                echo "<div class='panel-body'>$model->text</div>";
+                echo "<div class='panel-body'>" . $model->getText() . "</div>";
                 //Get images.
                 $mediaConnections = MediaConnections::find()->where(['tweet' => $model->id,])->all();
                 foreach($mediaConnections as $image)

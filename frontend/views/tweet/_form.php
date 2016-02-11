@@ -7,6 +7,8 @@ use app\models\Tweet;
 
 use app\models\UploadForm;
 
+use app\models\KeyConnections;
+
 /* @var $this yii\web\View */
 /* @var $model app\models\Tweet */
 /* @var $form yii\widgets\ActiveForm */
@@ -14,7 +16,7 @@ use app\models\UploadForm;
 
 <div class="col-md-6 well">
 <?php
-    $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data'], 'action' => '../tweet/create']);
+    $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data'], 'action' => '@web/tweet/create']);
     echo "<div class='row-fluid'>"; 
         echo "<div class='col-md-3'>";
             echo Yii::$app->user->identity->username;
@@ -25,7 +27,7 @@ use app\models\UploadForm;
         echo "<div class='col-md-9 text-center'>";
             echo "<div class='panel panel-default'>";
                 echo "<div class='panel-body'>";
-                    echo $form->field($model, 'key')->textInput(['maxlength' => true]);
+                    echo $form->field($model, 'key')->dropDownList(KeyConnections::getKeyOptionsByUserId(Yii::$app->user->identity->id));
                     echo $form->field($model, 'text')->textarea(['rows' => 6]);
                 echo "</div>";
             echo "</div>";
