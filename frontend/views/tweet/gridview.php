@@ -3,6 +3,7 @@
  * Pass an array of Tweet models to $tweets.
  */
 use app\models\Tweet;
+use yii\widgets\LinkPager;
 ?>
         
 <div class="body-content">
@@ -42,6 +43,8 @@ if($i != 0)
 {
     echo "</div>";
 }
+
+echo LinkPager::widget(['pagination' => $pages,]);
 ?>
 </div>
   

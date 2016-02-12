@@ -17,6 +17,8 @@ use yii\web\UploadedFile;
 
 use common\components\AccessRule;
 
+use yii\data\Pagination;
+
 require_once '../../third/Cloudinary.php';
 require_once '../../third/Uploader.php';
 require_once '../../third/Api.php';
@@ -99,14 +101,20 @@ class TweetController extends Controller
     
     public function actionViewAll()
     {
-        $tweets = Tweet::find()->orderBy('timestamp DESC')->all();
-        return $this->render('gridview', ['tweets' => $tweets,]);
+        $query  = Tweet::find()->orderBy('timestamp DESC');
+        $countQuery = clone $query;
+        $pages = new Pagination(['totalCount' => $countQuery->count()]);
+        $tweets = $query->offset($pages->offset)->limit($pages->limit)->all();
+        return $this->render('gridview', ['tweets' => $tweets, 'pages' => $pages,]);
     }
     
     public function actionViewUser($username)
     {
-        $tweets = Tweet::find()->where(['owner' => $username,])->orderBy('timestamp DESC')->all();
-        return $this->render('gridview', ['tweets' => $tweets,]);
+        $query = Tweet::find()->where(['owner' => $username,])->orderBy('timestamp DESC');
+        $countQuery = clone $query;
+        $pages = new Pagination(['totalCount' => $countQuery->count()]);
+        $tweets = $query->offset($pages->offset)->limit($pages->limit)->all();
+        return $this->render('gridview', ['tweets' => $tweets, 'pages' => $pages,]);
     }
 
     /**
