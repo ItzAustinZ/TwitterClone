@@ -69,26 +69,17 @@ class Tweet extends \yii\db\ActiveRecord
     }
     
     //Returns text appropriate for the user.
-    public function getText()
+    public function getText($encodingLevel)
     {
-        if(($this->key == "") || ($this->key == null))
+        switch($encodingLevel)
         {
-            return $this->text;
-        }
-        elseif(Yii::$app->user->isGuest)
-        {
-            return $this->getEncodedText();
-        }
-        $userIsOwner = Yii::$app->user->identity->username == $this->owner;
-        $user = User::find()->where(['id' => Yii::$app->user->identity->id])->one();
-        $userHasKey = $user->hasKey($this->key);
-        if($userIsOwner || $userHasKey)
-        {
-            return $this->text;
-        }
-        else
-        {
-            return $this->getEncodedText();
+            case 0:
+            case 1:
+            case 3:
+            case 4:
+                return $this->text;
+            case 2:
+                return $this->getEncodedText();
         }
     }
     
@@ -129,5 +120,41 @@ class Tweet extends \yii\db\ActiveRecord
             $currentTextIndex++;
         }
         return $encryptedString;
+    }
+    
+    //Returns the tweet's encoding level for the given user.
+    /*
+     * 0: Unencrypted
+     * 1: Decrypted
+     * 2: Encrypted
+     * 3: Owner
+     * 4: Admin-Eyes
+     */
+    public function getEncodingLevel()
+    {
+        //Check if we are unencrypted and a guest. If so, return "UNENCRYPTED".
+        if((($this->key == "") || ($this->key == null)) && Yii::$app->user->isGuest)
+            return 0;
+        //Check if the current user is a guest. If so, return "ENCRYPTED".
+        if(Yii::$app->user->isGuest)
+            return 2;
+        //Get our current user.
+        $user = User::find()->where(['id' => Yii::$app->user->identity->id])->one();
+        //Check if we are the owner of the message. If so, return "OWNER".
+        if($this->owner == $user->username)
+            return 3;
+        //Check if we are unencrypted. If so, return "UNENCRYPTED".
+        if(($this->key == "") || ($this->key == null))
+            return 0;
+        //Check if we have the key needed. If so, return "DECRYPTED".
+        if($user->hasKey($this->key))
+            return 1;
+        //The message is encrypted. Check if have admin eyes. If so, return "ADMIN_EYES".
+        //TODO admin eyes is currently unimplemented.
+        $adminEyes = false;
+        if($adminEyes)
+            return 4;
+        else
+            return 2;
     }
 }
