@@ -3,9 +3,7 @@
  * Pass an array of Tweet models to $tweets.
  */
 use app\models\Tweet;
-<<<<<<< HEAD
 use yii\widgets\LinkPager;
-=======
 use yii\web\Session;
 
 //Check for view variables.
@@ -15,7 +13,6 @@ if(!$session->has('eyes_admin'))
     $session['eyes_admin'] = false;
 if(!$session->has('eyes_encrypted'))
     $session['eyes_encrypted'] = true;
->>>>>>> feature-toolbar
 ?>
         
 <div class="body-content">
