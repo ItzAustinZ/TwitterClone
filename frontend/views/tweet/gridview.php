@@ -16,7 +16,7 @@ foreach($tweets as $message)
     {
         echo "<div class='row'>";
     }
-    if(!$renderedForm)
+    if(!$renderedForm && !Yii::$app->user->isGuest)
     {
         if(!isset($model))
         {

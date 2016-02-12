@@ -71,6 +71,14 @@ class Tweet extends \yii\db\ActiveRecord
     //Returns text appropriate for the user.
     public function getText()
     {
+        if(($this->key == "") || ($this->key == null))
+        {
+            return $this->text;
+        }
+        elseif(Yii::$app->user->isGuest)
+        {
+            return $this->getEncodedText();
+        }
         $userIsOwner = Yii::$app->user->identity->username == $this->owner;
         $user = User::find()->where(['id' => Yii::$app->user->identity->id])->one();
         $userHasKey = $user->hasKey($this->key);
@@ -80,7 +88,46 @@ class Tweet extends \yii\db\ActiveRecord
         }
         else
         {
-            return "Doesn't have key - IMPLEMENT ENCRYPTION";
+            return $this->getEncodedText();
         }
+    }
+    
+    //Returns our encoded text.
+    private function getEncodedText()
+    {
+        $currentKeyIndex = 0;
+        $currentTextIndex = 0;
+        $spacingTimer = 0;
+        $encryptedString = "";
+        //Loop through each letter in the text. Modify that letter by our current key index.
+        while($currentTextIndex < strlen($this->text))
+        {
+            //Get our character value offset by 32 (the ascii value of space). This way, a space has an offset value of 0.
+            $keyCharacterValue = ord($this->key[$currentKeyIndex]) - 32;
+            //Get our new text value.
+            $textCharacterValue = ord($this->text[$currentTextIndex]) + $keyCharacterValue;
+            //Check if we need to wrap our value around.
+            if($textCharacterValue >= 127)
+            {
+                $textCharacterValue = 32 + ($textCharacterValue - 127);
+            }
+            //Append our character.
+            $encryptedString .= chr($textCharacterValue);
+            //Should we put a space?
+            $spacingTimer++;
+            if($spacingTimer == 2)
+            {
+                $spacingTimer = 0;
+                $encryptedString .= " ";
+            }
+            //Iterate both indexes.
+            $currentKeyIndex++;
+            if($currentKeyIndex >= strlen($this->key))
+            {
+                $currentKeyIndex = 0;
+            }
+            $currentTextIndex++;
+        }
+        return $encryptedString;
     }
 }

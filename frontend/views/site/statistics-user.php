@@ -195,10 +195,8 @@ function getTopUserTweetsForIntervalAsArray($startMonth, $startYear, $endMonth, 
             'dataProvider' => $dataProvider,
             'columns' => [
                 ['class' => 'yii\grid\SerialColumn'],
-                    'id',
-                    'owner',
+                    'name',
                     'text',
-                    'timestamp:datetime',
                     ['class' => 'yii\grid\ActionColumn', 'controller' => 'key-connections'],
                 ],
             ]);

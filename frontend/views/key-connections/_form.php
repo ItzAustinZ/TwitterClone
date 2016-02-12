@@ -12,7 +12,8 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(['action' => '@web/key-connections/create']); ?>
 
-    <?php echo "Add Key: " . $form->field($model, 'text')->textInput(['maxlength' => true,]); ?>
+    <?php echo "Key Name: " . $form->field($model, 'name')->textInput(['maxLength' => true,]); ?>
+    <?php echo "Key Value: " . $form->field($model, 'text')->textInput(['maxlength' => true,]); ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

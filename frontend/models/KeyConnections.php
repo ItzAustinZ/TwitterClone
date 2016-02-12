@@ -11,6 +11,7 @@ use Yii;
  * @property integer $owner
  * @property string $text
  * @property integer $timestamp
+ * @property string $name
  */
 class KeyConnections extends \yii\db\ActiveRecord
 {
@@ -29,7 +30,8 @@ class KeyConnections extends \yii\db\ActiveRecord
     {
         return [
             [['owner', 'timestamp'], 'integer'],
-            [['timestamp'], 'required'],
+            [['timestamp', 'name', 'text'], 'required'],
+            [['name'], 'string'],
             [['text'], 'string', 'max' => 255]
         ];
     }
@@ -44,18 +46,22 @@ class KeyConnections extends \yii\db\ActiveRecord
             'owner' => 'Owner',
             'text' => 'Text',
             'timestamp' => 'Timestamp',
+            'name' => 'Name',
         ];
     }
     
     public function getKeyOptionsByUserId($id)
     {
-        $keys = array();
-        $keys[""] = "NONE";
-        $userKeys = KeyConnections::find()->where(['owner' => $id])->all();
-        foreach($userKeys as $singleKey)
+        $keyOptions = array();
+        $keyOptions[""] = "None";
+        $allKeyConnections = KeyConnections::find()->where(['owner' => $id])->all();
+        foreach($allKeyConnections as $connection)
         {
-            $keys[$singleKey->text] = $singleKey->text;
+            if($connection->text != "")
+            {
+                $keyOptions[$connection->text] = $connection->name . " - " . $connection->text;
+            }
         }
-        return $keys;
+        return $keyOptions;
     }
 }
