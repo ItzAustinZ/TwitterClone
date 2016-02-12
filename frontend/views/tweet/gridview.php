@@ -3,10 +3,21 @@
  * Pass an array of Tweet models to $tweets.
  */
 use app\models\Tweet;
+use yii\web\Session;
+
+//Check for view variables.
+$session = new Session();
+$session->open();
+if(!$session->has('eyes_admin'))
+    $session['eyes_admin'] = false;
+if(!$session->has('eyes_encrypted'))
+    $session['eyes_encrypted'] = true;
 ?>
         
 <div class="body-content">
+    
 <?php
+echo $this->render('_toolbar');
 $i = 0;
 $renderedForm = false;
 foreach($tweets as $message)
@@ -26,16 +37,22 @@ foreach($tweets as $message)
         $i++;
         echo $this->render('_form', ['model' => $model,]);
     }
-    echo $this->render('_cell', [
-        'model' => $message,
-        ]);
-    //Close the row.
-    if($i == 1)
+    //Get our encoding.
+    $encoding = $message->getEncodingLevel();
+    //Do we display a message with this encoding?
+    if(!(($encoding == 2) && !$session['eyes_encrypted']))
     {
-        echo "</div>";
-        $i = -1;
+        echo $this->render('_cell', [
+            'model' => $message, 'encoding' => $encoding,
+            ]);
+        //Close the row.
+        if($i == 1)
+        {
+            echo "</div>";
+            $i = -1;
+        }
+        $i++;
     }
-    $i++;
 }
 //Close our last row if we need to.
 if($i != 0)
