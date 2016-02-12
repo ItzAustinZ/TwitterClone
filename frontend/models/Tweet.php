@@ -6,6 +6,8 @@ use Yii;
 
 use common\models\User;
 
+use yii\web\Session;
+
 /**
  * This is the model class for table "tweet".
  *
@@ -132,6 +134,13 @@ class Tweet extends \yii\db\ActiveRecord
      */
     public function getEncodingLevel()
     {
+        $session = new Session();
+        $session->open();
+        if(!$session->has('eyes_admin'))
+            $session['eyes_admin'] = false;
+        if(!$session->has('eyes_encrypted'))
+            $session['eyes_encrypted'] = true;
+        
         //Check if we are unencrypted and a guest. If so, return "UNENCRYPTED".
         if((($this->key == "") || ($this->key == null)) && Yii::$app->user->isGuest)
             return 0;
@@ -151,7 +160,7 @@ class Tweet extends \yii\db\ActiveRecord
             return 1;
         //The message is encrypted. Check if have admin eyes. If so, return "ADMIN_EYES".
         //TODO admin eyes is currently unimplemented.
-        $adminEyes = false;
+        $adminEyes = $session['eyes_admin'];
         if($adminEyes)
             return 4;
         else

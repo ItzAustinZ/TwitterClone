@@ -11,7 +11,6 @@ use yii\helpers\Html;
     $panelColor = "#E0FFFF";
     $encryptionStatus = "UNKNOWN_STATUS";
     $displayKey = false;
-    $encoding = $model->getEncodingLevel();
     switch($encoding)
     {
         case 0: //UNENCODED - UNOWNED

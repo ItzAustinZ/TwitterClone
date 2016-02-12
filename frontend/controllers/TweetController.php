@@ -16,6 +16,7 @@ use app\models\MediaConnections;
 use yii\web\UploadedFile;
 
 use common\components\AccessRule;
+use yii\web\Session;
 
 use yii\data\Pagination;
 
@@ -155,6 +156,24 @@ class TweetController extends Controller
         return $this->render('create', [
             'model' => $model,
         ]);
+    }
+    
+    public function actionToggleEncryptedEyes()
+    {
+        $session = new Session();
+        $session->open();
+        $session['eyes_encrypted'] = !$session['eyes_encrypted'];
+        $session->close();
+        return $this->redirect(Yii::$app->request->referrer);
+    }
+    
+    public function actionToggleAdminEyes()
+    {
+        $session = new Session();
+        $session->open();
+        $session['eyes_admin'] = !$session['eyes_admin'];
+        $session->close();
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
